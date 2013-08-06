@@ -4,18 +4,39 @@ module PeoplePlacesThings
 
     def initialize(str)
       self.raw = str
-      tokens = str.split(/[\s,]/).select {|s| !s.empty?}
+      tokens = str.gsub(/\s+-\s+/, ' ').split(/[\s,]/).select {|s| !s.empty?}
+
+      tokens.each_with_index do |token, index|
+        sub_tokens = token.split('-')
+        if sub_tokens.size > 1 && sub_tokens.all? {|sub_token| sub_token.to_i != 0}
+          tokens[index] = sub_tokens
+        end
+      end
+      tokens.flatten!
 
       # Check the first token for leading numericality.  If so, set number to the first token, and delete it
       #
-      if tokens.first =~ /(^\d+.*)/
-        self.number = $1
-        tokens.shift
+      numeric_regex = /^((?!st|nd|rd|th).)*$/i # Handle numeric tokens, not including street names
+      if tokens.first =~ numeric_regex && tokens.first.to_i != 0
+        first_number = tokens.first
+        # Handle addresses with suite number preceding the street number
+        if tokens.size > 1 && tokens[1] =~ numeric_regex && tokens[1].to_i != 0
+          second_number = tokens[1]
+          self.unit = first_number
+          self.number = second_number
+          self.unit_type = :suite
+          tokens.shift
+          tokens.shift
+        else
+          self.number = first_number
+          tokens.shift
+        end
       end
 
       # If at least two tokens remain, check next-to-last token as unit type.  If so, set unit_type and unit, and delete the tokens
+      # If unit has already been determined (i.e. via preceding unit number), skip this step
       #
-      if tokens.size > 1
+      if tokens.size > 1 && !self.unit_type
         self.unit_type = StreetAddress.find_token(tokens[-2], UNIT_TYPES)
         if self.unit_type
           self.unit = tokens[-1]
