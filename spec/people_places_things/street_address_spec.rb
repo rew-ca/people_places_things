@@ -86,9 +86,10 @@ describe StreetAddress do
   end
 
   it "should parse suites in front with no dash" do
-    addr = StreetAddress.new "23 123 1st East ave"
+    addr = StreetAddress.new "23 123 Main ave E"
     addr.number.should == '123'
-    addr.name.should == '1st East'
+    addr.name.should == 'Main'
+    addr.post_direction.should == :east
     addr.suffix.should == :avenue
     addr.unit_type.should == :suite
     addr.unit.should == '23'
