@@ -221,6 +221,11 @@ describe StreetAddress do
     addr.to_s.should == "100 First street"
   end
 
+  it "should have the correct street name for 3473 West RIVER RD" do
+    addr = StreetAddress.new "3473 West RIVER RD"
+    addr.name.should == "RIVER"
+  end
+
   it "should output postal standard" do
     addr = StreetAddress.new "100 East Woodside Crossing S.W."
     addr.to_canonical_s.should == "100 E WOODSIDE XING SW"
