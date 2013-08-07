@@ -114,7 +114,6 @@ describe StreetAddress do
     addr.unit_type.should == :suite
     addr.unit.should == '12'
   end
-  "123- something"
 
   it "should parse apartments" do
     addr = StreetAddress.new "123 E E St NE Apartment 4"
@@ -224,6 +223,16 @@ describe StreetAddress do
   it "should have the correct street name for 3473 West RIVER RD" do
     addr = StreetAddress.new "3473 West RIVER RD"
     addr.name.should == "RIVER"
+  end
+
+  it "should have the correct street name for '1 3473 West RIVER RD'" do
+    addr = StreetAddress.new '1 3473 West RIVER RD'
+    addr.name.should == "RIVER"
+    addr.suffix.should == :road
+    addr.pre_direction.should eq(:west)
+    addr.number.should eq('3473')
+    addr.unit_type.should == :suite
+    addr.unit.should == '1'
   end
 
   it "should output postal standard" do
